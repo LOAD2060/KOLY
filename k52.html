@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Определи своего внутреннего НИКОЛАЯ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        #snowflakes-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            font-size: 1em;
+            pointer-events: none;
+            animation: fall linear forwards;
+            top: -20px;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e6e6e6;
+        }
+
+        .container {
+            background-color: rgba(26, 32, 44, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3),
+                        0 0 60px rgba(66, 153, 225, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #welcome-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        #welcome-screen h1 {
+            margin-bottom: 30px;
+        }
+
+        #welcome-screen p {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #60a5fa, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(1px);
+        }
+
+        #quiz-container {
+            display: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: #60a5fa;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(96, 165, 250, 0.8),
+                             0 0 30px rgba(96, 165, 250, 0.6);
+            }
+        }
+
+        .question {
+            display: none;
+            margin-bottom: 35px;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .question.active {
+            display: block;
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .question h2 {
+            color: #93c5fd;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .options {
+            display: grid;
+            gap: 20px;
+        }
+
+        .option {
+            background-color: rgba(59, 130, 246, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background-color: rgba(96, 165, 250, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        .audio-control {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .video-container {
+            margin-top: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background-size: cover;
+        }
+
+        #result {
+            display: none;
+            text-align: center;
+            animation: fadeInScale 0.8s ease;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #result img {
+            max-width: 350px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        #result img:hover {
+            transform: scale(1.05);
+        }
+
+        #result h2 {
+            color: #60a5fa;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+        }
+
+        #result-description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="snowflakes-container"></div>
+    <div class="container">
+        <div id="welcome-screen">
+            <h1>Определи своего внутреннего НИКОЛАЯ</h1>
+            <p>Готов узнать, какой ты НИКОЛАЙ? Пройди этот увлекательный тест и раскрой свою истинную сущность!</p>
+            <button class="start-button" onclick="startQuiz()">Начать проверку</button>
+        </div>
+
+        <div id="quiz-container">
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+            
+            <div class="question active" id="q1">
+                <h2>Чем Коля занимается производством на уроках?</h2>
+                <div class="options">
+                    <div class="option" onclick="nextQuestion(1, 'a')">НИЧЕМ</div>
+                    <div class="option" onclick="nextQuestion(1, 'b')">Играет с Богданом🚽</div>
+                    <div class="option" onclick="nextQuestion(1, 'c')">Страдает Хуёй</div>
+                    <div class="option" onclick="nextQuestion(1, 'd')">Смеётся без причины</div>
+                </div>
+            </div>
+
+            <div class="question" id="q2">
+                <h2>Какую фразу Коля чаще всего произносит?</h2>
+                <div class="options">
+                    <div class="option" onclick="nextQuestion(2, 'a')">Спасибо</div>
+                    <div class="option" onclick="nextQuestion(2, 'b')">До свидания</div>
+                    <div class="option" onclick="nextQuestion(2, 'c')">Извините</div>
+                    <div class="option" onclick="nextQuestion(2, 'd')">Я потяну тебя за...</div>
+                </div>
+            </div>
+
+            <div class="question" id="q3">
+                <h2>Колин идеальный перекус это...</h2>
+                <div class="options">
+                    <div class="option" onclick="nextQuestion(3, 'a')">Диетический салат</div>
+                    <div class="option" onclick="nextQuestion(3, 'b')">Домашняя кухня</div>
+                    <div class="option" onclick="nextQuestion(3, 'c')">Доширак + govno</div>
+                    <div class="option" onclick="nextQuestion(3, 'd')">Пирожное</div>
+                </div>
+            </div>
+
+            <div class="question" id="q4">
+                <h2>Какой звук для Коли самый смешной?</h2>
+                <div class="options">
+                    <div class="option" onclick="nextQuestion(4, 'a')">
+                        звук 1
+                        <audio class="audio-control" controls>
+                            <source src="AUDIO/звук 1.mp3" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    <div class="option" onclick="nextQuestion(4, 'b')">
+                        звук 2
+                        <audio class="audio-control" controls>
+                            <source src="AUDIO/звук 2.mp3" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    <div class="option" onclick="nextQuestion(4, 'c')">
+                        звук 3
+                        <audio class="audio-control" controls>
+                            <source src="AUDIO/звук 3.mp3" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    <div class="option" onclick="nextQuestion(4, 'd')">
+                        звук 4
+                        <audio class="audio-control" controls>
+                            <source src="AUDIO/звук 4.mp3" type="audio/mpeg">
+                        </audio>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q5">
+                <h2>Какое видео Коли больше нравится?</h2>
+                <div class="options">
+                    <div class="option" onclick="nextQuestion(5, 'a')">
+                        видео 1
+                        <div class="video-container">
+                            <video controls poster="VID/PREV/1.jpg">
+                                <source src="VID/видео 1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                    <div class="option" onclick="nextQuestion(5, 'b')">
+                        видео 2
+                        <div class="video-container">
+                            <video controls poster="VID/PREV/2.jpg">
+                                <source src="VID/видео 2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                    <div class="option" onclick="nextQuestion(5, 'c')">
+                        видео 3
+                        <div class="video-container">
+                            <video controls poster="VID/PREV/3.jpg">
+                                <source src="VID/видео 3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                    <div class="option" onclick="nextQuestion(5, 'd')">
+                        видео 4
+                        <div class="video-container">
+                            <video controls poster="VID/PREV/4.jpg">
+                                <source src="VID/видео 4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result">
+                <h2>Вот кто ты из Николаев:</h2>
+                <div id="meme-result"></div>
+                <img id="result-image" src="" alt="Твой результат">
+                <p id="result-description"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = '❄';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snowflake.style.opacity = Math.random();
+            snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            
+            document.getElementById('snowflakes-container').appendChild(snowflake);
+
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+            });
+        }
+
+        window.onload = function() {
+            setInterval(createSnowflake, 100);
+        };
+
+        function startQuiz() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            document.querySelector('#q1').classList.add('active');
+        }
+
+        function handleMedia(mediaElement) {
+            document.querySelectorAll('audio').forEach(audio => {
+                if(audio !== mediaElement && !audio.paused) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+            
+            document.querySelectorAll('video').forEach(video => {
+                if(video !== mediaElement && !video.paused) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('audio, video').forEach(media => {
+                media.addEventListener('play', function() {
+                    handleMedia(this);
+                });
+            });
+        });
+
+        let answers = {};
+        let currentQuestion = 1;
+
+        function nextQuestion(questionNum, answer) {
+            answers[questionNum] = answer;
+            document.querySelector('.progress').style.width = (questionNum * 20) + '%';
+            
+            if (questionNum < 5) {
+                document.querySelector(`#q${questionNum}`).classList.remove('active');
+                document.querySelector(`#q${questionNum + 1}`).classList.add('active');
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.querySelector('#q5').style.display = 'none';
+            document.querySelector('#result').style.display = 'block';
+            
+            let result = calculateResult();
+            document.querySelector('#meme-result').innerHTML = result.title;
+            document.querySelector('#result-image').src = result.image;
+            document.querySelector('#result-description').innerHTML = result.description;
+        }
+
+        function calculateResult() {
+            let results = {
+                'gamer': {
+                    count: 0,
+                    title: 'НИКОЛАЙ - Властелин виртуальных миров!',
+                    image: 'https://i.imgur.com/ZW3kqiC.jpg',
+                    description: 'Твоя стихия - цифровые приключения! Ты мастерски управляешься с джойстиком и клавиатурой. Для тебя "ещё пять минуточек" всегда превращаются в увлекательный ночной марафон. Виртуальные миры - твой второй дом!'
+                },
+                'cool': {
+                    count: 0,
+                    title: 'НИКОЛАЙ - Звезда района!',
+                    image: 'https://i.imgur.com/1X8kBPj.jpg',
+                    description: 'Ты настоящая легенда своего района! Где бы ты ни появился - там сразу начинается веселье. Твои истории становятся местными байками, а твоё имя знает каждая бабушка на лавочке!'
+                },
+                'nerd': {
+                    count: 0,
+                    title: 'НИКОЛАЙ - Повелитель знаний!',
+                    image: 'https://i.imgur.com/QxZhBdH.jpg',
+                    description: 'Твой мозг работает как суперкомпьютер! Учебники - твои лучшие друзья, а пятёрки - обычное дело. Ты всегда готов поделиться знаниями и помочь другим разобраться в сложных темах!'
+                },
+                'chill': {
+                    count: 0,
+                    title: 'НИКОЛАЙ - Мастер дзен!',
+                    image: 'https://i.imgur.com/vN4uZPH.jpg',
+                    description: 'Ты познал искусство безмятежности! Никакой стресс тебе не страшен - ты знаешь, что всё образуется само собой. Твоё спокойствие заразительно, а философский подход к жизни достоин древних мудрецов!'
+                }
+            };
+
+            for (let answer in answers) {
+                switch(answers[answer]) {
+                    case 'a':
+                        results.gamer.count++;
+                        break;
+                    case 'b':
+                        results.cool.count++;
+                        break;
+                    case 'c':
+                        results.nerd.count++;
+                        break;
+                    case 'd':
+                        results.chill.count++;
+                        break;
+                }
+            }
+
+            let maxCount = 0;
+            let resultType = 'gamer';
+
+            for (let type in results) {
+                if (results[type].count > maxCount) {
+                    maxCount = results[type].count;
+                    resultType = type;
+                }
+            }
+
+            return results[resultType];
+        }
+    </script>
+</body>
+</html>
